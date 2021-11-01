@@ -1,7 +1,7 @@
 # Configuração de ambiente
 Execute os comandos abaixo no terminal de comando para a instalação das dependências
-####`composer install`
-####`npm install`
+###`composer install`
+###`npm install`
 
 
 ## .env e config/database.php
