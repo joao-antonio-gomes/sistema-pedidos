@@ -19,7 +19,7 @@
                     </div>
                     <div class="col-md-8">
                         <input required type="number" name="dado-cliente" id="dado-cliente" class="form-control"
-                               placeholder="Digite aqui a informação pela qual quer buscar" value="09355872925">
+                               placeholder="Digite aqui a informação pela qual quer buscar" value="">
                     </div>
                 </div>
             </div>
