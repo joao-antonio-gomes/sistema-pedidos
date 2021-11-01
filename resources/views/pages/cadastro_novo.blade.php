@@ -131,7 +131,7 @@
         });
 
         document.getElementById('cpf').addEventListener('blur', function (e) {
-            fetch('/clientes/obtem-cliente-cpf', {
+            fetch('/clientes/obtemClienteCpf', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -66,7 +66,7 @@
         </div>
     </div>
 
-    <table class="table mt-4">
+    <table id="pedidos" class="table mt-4">
         <thead>
         <tr>
             <th>Nº Pedido</th>
@@ -88,6 +88,12 @@
         </tfoot>
 
     </table>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <a href="/pedidos/downloadCsv" class="btn btn-primary">Download Relatório Pedidos</a>
+        </div>
+    </div>
 @endsection
 
 @section('footer-scripts')
@@ -112,7 +118,7 @@
         document.getElementById('buscar').addEventListener('click', function () {
             let tipoDado = document.getElementById('tipo-dado').value;
             let dadoCliente = document.getElementById('dado-cliente').value;
-            fetch('/clientes/busca-pedidos', {
+            fetch('/clientes/buscaPedidos', {
                 method: 'post',
                 headers: {
                     'Content-Type': 'application/json'
@@ -186,7 +192,7 @@
                 }
                 const linha = $(event.target.parentElement.parentElement);
                 let id = event.target.dataset.pedidoId;
-                fetch('/pedidos/excluir-pedido', {
+                fetch('/pedidos/excluirPedido', {
                     method: 'post',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',

@@ -11,4 +11,9 @@ class Pedido extends Model
     protected $primaryKey = 'id';
     public $timestamps = false;
     protected $fillable = ['numero_pedido', 'produto', 'valor', 'data_pedido', 'cliente_id'];
+
+    public function cliente()
+    {
+        return $this->belongsTo('App\Models\Cliente', 'cliente_id');
+    }
 }

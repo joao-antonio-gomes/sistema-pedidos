@@ -10,6 +10,34 @@ class PedidoController extends Controller
 {
     public function index()
     {
+        $clientes = Cliente::all();
+        $pedidos = Pedido::all();
+
+        $arrayValoresTodosPedidos = $pedidos->map(function ($pedido) {
+            return $pedido->valor;
+        });
+        $totalValoresPedidos = $arrayValoresTodosPedidos->reduce(function ($carry, $item) {
+            return $carry + $item;
+        });
+        foreach ($clientes as $cliente) {
+            $cliente->numero_pedidos = $cliente->pedidos->count();
+            $pedidosCliente = $cliente->pedidos;
+            $valorTotal = $pedidosCliente->reduce(function ($carry, $pedido) {
+                return $carry + $pedido->valor;
+            }, 0);
+            $cliente->valor_total = number_format($valorTotal, 2, ',', '.');
+            $percentualPedidos = (($valorTotal / $totalValoresPedidos) * 100);
+            //format percentualPedidos
+            $cliente->percentual = number_format($percentualPedidos, 2, ',', '.');
+        }
+
+        return view('pages.todos_pedidos', [
+            "clientes" => $clientes
+        ]);
+    }
+
+    public function novoPedido()
+    {
         $ultimoPedido = Pedido::orderBy('id', 'desc')->first();
         $numeroProximoPedido = '1';
         if ($ultimoPedido) {
@@ -91,5 +119,32 @@ class PedidoController extends Controller
         return response()->json([
             'pedido' => $pedido,
             'status' => 200]);
+    }
+
+    public function exportPedidosCsv()
+    {
+        $pedidos = Pedido::all();
+        $csv = fopen('php://temp/maxmemory:'. (5*1024*1024), 'r+');
+        fputcsv($csv, ['Número do pedido', 'Produto', 'Valor', 'Data do pedido', 'Nome do cliente', 'CPF do cliente', 'Telefone do cliente', 'Email do cliente']);
+        foreach ($pedidos as $pedido) {
+            $cliente = $pedido->cliente;
+            fputcsv($csv, [
+                $pedido->numero_pedido,
+                $pedido->produto,
+                $pedido->valor,
+                $pedido->data_pedido,
+                $cliente->nome,
+                $cliente->cpf,
+                $cliente->telefone,
+                $cliente->email,
+            ]);
+        }
+        rewind($csv);
+        $csv = stream_get_contents($csv);
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="pedidos.csv"',
+        ];
+        return response($csv, 200, $headers);
     }
 }
