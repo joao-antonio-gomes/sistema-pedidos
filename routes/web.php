@@ -29,7 +29,8 @@ Route::prefix('pedidos')->group(function () {
     Route::post('/', 'App\Http\Controllers\PedidoController@store');
     Route::get('/porCliente', function () { return view('pages.pedidos_clientes'); });
     Route::get('/novo', 'App\Http\Controllers\PedidoController@novoPedido');
-    Route::get('/downloadCsv', 'App\Http\Controllers\PedidoController@exportPedidosCsv');
+    Route::get('/downloadCsv/{id?}', 'App\Http\Controllers\PedidoController@exportPedidosCsv');
+    Route::get('/downloadCsvCompilado/', 'App\Http\Controllers\PedidoController@exportPedidosCsvCompilado');
     Route::post('/excluirPedido', 'App\Http\Controllers\PedidoController@deleteById');
     Route::post('/atualizar', 'App\Http\Controllers\PedidoController@updateById');
 });

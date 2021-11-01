@@ -39,6 +39,22 @@
             </div>
         </div>
     </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <a href="/pedidos/downloadCsvCompilado/" id="botao-relatorio" class="btn btn-primary">
+                Download Relatório Pedidos Compilado
+            </a>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <a href="/pedidos/downloadCsv/" id="botao-relatorio" class="btn btn-primary">
+                Download Relatório Pedidos Completo
+            </a>
+        </div>
+    </div>
 @endsection
 @section('footer-scripts')
     <script>

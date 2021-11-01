@@ -10,26 +10,7 @@ class PedidoController extends Controller
 {
     public function index()
     {
-        $clientes = Cliente::all();
-        $pedidos = Pedido::all();
-
-        $arrayValoresTodosPedidos = $pedidos->map(function ($pedido) {
-            return $pedido->valor;
-        });
-        $totalValoresPedidos = $arrayValoresTodosPedidos->reduce(function ($carry, $item) {
-            return $carry + $item;
-        });
-        foreach ($clientes as $cliente) {
-            $cliente->numero_pedidos = $cliente->pedidos->count();
-            $pedidosCliente = $cliente->pedidos;
-            $valorTotal = $pedidosCliente->reduce(function ($carry, $pedido) {
-                return $carry + $pedido->valor;
-            }, 0);
-            $cliente->valor_total = number_format($valorTotal, 2, ',', '.');
-            $percentualPedidos = (($valorTotal / $totalValoresPedidos) * 100);
-            //format percentualPedidos
-            $cliente->percentual = number_format($percentualPedidos, 2, ',', '.');
-        }
+        $clientes = $this->getInformacoesPedidosClientesCompilado();
 
         return view('pages.todos_pedidos', [
             "clientes" => $clientes
@@ -121,9 +102,39 @@ class PedidoController extends Controller
             'status' => 200]);
     }
 
-    public function exportPedidosCsv()
+    public function getInformacoesPedidosClientesCompilado()
     {
+        $clientes = Cliente::all();
         $pedidos = Pedido::all();
+
+        $arrayValoresTodosPedidos = $pedidos->map(function ($pedido) {
+            return $pedido->valor;
+        });
+        $totalValoresPedidos = $arrayValoresTodosPedidos->reduce(function ($carry, $item) {
+            return $carry + $item;
+        });
+        foreach ($clientes as $cliente) {
+            $cliente->numero_pedidos = $cliente->pedidos->count();
+            $pedidosCliente = $cliente->pedidos;
+            $valorTotal = $pedidosCliente->reduce(function ($carry, $pedido) {
+                return $carry + $pedido->valor;
+            }, 0);
+            $cliente->valor_total = number_format($valorTotal, 2, ',', '.');
+            $percentualPedidos = (($valorTotal / $totalValoresPedidos) * 100);
+            //format percentualPedidos
+            $cliente->percentual = number_format($percentualPedidos, 2, ',', '.');
+        }
+
+        return $clientes;
+    }
+
+    public function exportPedidosCsv($id = null)
+    {
+        if ($id == null) {
+            $pedidos = Pedido::all();
+        } else {
+            $pedidos = Pedido::where('cliente_id', $id)->get();
+        }
         $csv = fopen('php://temp/maxmemory:'. (5*1024*1024), 'r+');
         fputcsv($csv, ['Número do pedido', 'Produto', 'Valor', 'Data do pedido', 'Nome do cliente', 'CPF do cliente', 'Telefone do cliente', 'Email do cliente']);
         foreach ($pedidos as $pedido) {
@@ -141,9 +152,38 @@ class PedidoController extends Controller
         }
         rewind($csv);
         $csv = stream_get_contents($csv);
+        $hora = date('Y-m-d_H-i-s');
+        $nomeArquivo = 'pedidos_completo_' . $hora . '.csv';
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="pedidos.csv"',
+            'Content-Disposition' => 'attachment; filename=' . $nomeArquivo,
+        ];
+        return response($csv, 200, $headers);
+    }
+
+    public function exportPedidosCsvCompilado()
+    {
+        $clientes = $this->getInformacoesPedidosClientesCompilado();
+        $csv = fopen('php://temp/maxmemory:'. (5*1024*1024), 'r+');
+        fputcsv($csv, ['Nome do cliente', 'CPF', 'Telefone', 'E-mail',  'Número de pedidos', 'Valor total', 'Percentual de pedidos']);
+        foreach ($clientes as $cliente) {
+            fputcsv($csv, [
+                $cliente->nome,
+                $cliente->cpf,
+                $cliente->telefone,
+                $cliente->email,
+                $cliente->numero_pedidos,
+                $cliente->valor_total,
+                $cliente->percentual,
+            ]);
+        }
+        rewind($csv);
+        $csv = stream_get_contents($csv);
+        $hora = date('Y-m-d_H-i-s');
+        $nomeArquivo = 'pedidos_compilado_' . $hora . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename=' . $nomeArquivo,
         ];
         return response($csv, 200, $headers);
     }

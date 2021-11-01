@@ -86,14 +86,17 @@
             <td class="total-pedidos"></td>
         </tr>
         </tfoot>
-
     </table>
+
 
     <div class="row mt-4">
         <div class="col-md-12">
-            <a href="/pedidos/downloadCsv" class="btn btn-primary">Download Relatório Pedidos</a>
+            <a href="" id="botao-relatorio" class="btn btn-primary disabled">
+                Download Relatório Pedidos
+            </a>
         </div>
     </div>
+
 @endsection
 
 @section('footer-scripts')
@@ -133,6 +136,7 @@
                 .then(cliente => {
                     mostraDadosCliente(cliente);
                     constroiTabela(cliente);
+                    habilitaBotao(cliente.id);
                 });
         });
 
@@ -229,7 +233,7 @@
                     const linha = $(event.target.parentElement.parentElement.parentElement);
                     const input = linha.find('input');
                     Array.from(input).forEach((input, index) => {
-                        if (index === 0 || index >3 ) {
+                        if (index === 0 || index > 3) {
                             return;
                         }
                         input.removeAttribute('readonly');
@@ -251,7 +255,7 @@
 
                     const input = linha.find('input');
                     Array.from(input).forEach((input, index) => {
-                        if (index === 0 || index >3 ) {
+                        if (index === 0 || index > 3) {
                             return;
                         }
                         linha.find('input').attr('readonly', true);
@@ -298,7 +302,7 @@
             valores = valores.map(valor => parseFloat(valor.value));
             valores = valores.reduce((total, valor) => total + valor, 0);
             console.log(valores);
-            $('.total-pedidos').text(valores.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+            $('.total-pedidos').text(valores.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}));
         }
 
         //update dados pedido
@@ -333,7 +337,7 @@
 
                             const input = linha.find('input');
                             Array.from(input).forEach((input, index) => {
-                                if (index === 0 || index >3 ) {
+                                if (index === 0 || index > 3) {
                                     return;
                                 }
                                 linha.find('input').attr('readonly', true);
@@ -347,5 +351,11 @@
             }
         });
 
+        function habilitaBotao(id) {
+            const href = '/pedidos/downloadCsv/' + id;
+            const botao = $('#botao-relatorio');
+            botao.attr('href', href);
+            botao.removeClass('disabled');
+        }
     </script>
 @endsection
